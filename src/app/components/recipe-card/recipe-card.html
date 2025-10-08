@@ -1,6 +1,9 @@
 <a class="recipe-card" [routerLink]="['/recipe', recipe().id]">
   <div class="recipe-card__img">
     <img [src]="recipe().image" [alt]="recipe().title" />
+    <button class="favorite-btn" (click)="toggleFavorite($event)" [class.active]="isFavorite()">
+      {{ isFavorite() ? '♥' : '♡' }}
+    </button>
   </div>
 
   <div class="recipe-card__body">

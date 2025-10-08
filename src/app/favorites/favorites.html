@@ -1,1 +1,12 @@
-<p>favorites works!</p>
+<div class="favorites-container">
+  <div *ngIf="favoritesService.favorites().length === 0" class="favorites-empty">
+    No favorites yet ❤️
+  </div>
+
+  <div *ngIf="favoritesService.favorites().length > 0" class="favorites-grid">
+    <app-recipe-card
+      *ngFor="let recipe of favoritesService.favorites()"
+      [recipe]="recipe"
+    ></app-recipe-card>
+  </div>
+</div>
