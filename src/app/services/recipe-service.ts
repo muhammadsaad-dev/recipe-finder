@@ -15,4 +15,9 @@ export class RecipeService {
     const url = `${this.baseUrl}/recipes/complexSearch?query=${query}&number=${limit}&apiKey=${this.apiKey}`;
     return this.http.get<RecipeSearchResponse>(url);
   }
+
+  getRecipeById(id: string) {
+    const url = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${this.apiKey}`;
+    return this.http.get(url);
+  }
 }

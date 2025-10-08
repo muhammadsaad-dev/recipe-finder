@@ -20,4 +20,10 @@ export const routes: Routes = [
       return import('./favorites/favorites').then((m) => m.Favorites);
     },
   },
+  {
+    path: 'recipe/:id',
+    loadComponent: () => {
+      return import('./components/recipe-details/recipe-details').then((m) => m.RecipeDetails);
+    },
+  },
 ];

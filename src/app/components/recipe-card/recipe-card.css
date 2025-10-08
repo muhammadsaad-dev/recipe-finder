@@ -7,11 +7,16 @@
   cursor: pointer;
   max-width: 320px;
   font-family: 'Segoe UI', system-ui, sans-serif;
+  text-decoration: none;
+  display: block;
+  color: inherit;
 }
 
 .recipe-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  color: inherit;
 }
 
 .recipe-card__img {
@@ -58,6 +63,12 @@
   height: 40%;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.1));
   pointer-events: none;
+}
+
+/* Focus styles for accessibility */
+.recipe-card:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
 }
 
 /* Responsive design */
