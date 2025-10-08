@@ -1,0 +1,5 @@
+<div class="recipes-container">
+  @for (recipe of results; track recipe.id) {
+  <app-recipe-card [recipe]="recipe"></app-recipe-card>
+  }
+</div>

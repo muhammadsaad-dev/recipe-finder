@@ -1,0 +1,11 @@
+<form class="search-form" (ngSubmit)="onSearch()">
+  <input type="text" [(ngModel)]="query" name="query" placeholder="Search recipes..." required />
+
+  <select [(ngModel)]="limit" name="limit">
+    <option [value]="10">10</option>
+    <option [value]="20">20</option>
+    <option [value]="30">30</option>
+  </select>
+
+  <button type="submit">Search</button>
+</form>

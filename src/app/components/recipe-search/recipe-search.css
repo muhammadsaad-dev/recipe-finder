@@ -1,0 +1,89 @@
+.search-form {
+  display: flex;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-form input,
+.search-form select,
+.search-form button {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-form input {
+  flex: 1;
+  min-width: 250px;
+  background: white;
+}
+
+.search-form input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-form select {
+  background: white;
+  cursor: pointer;
+  min-width: 80px;
+}
+
+.search-form select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.search-form button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 12px 24px;
+}
+
+.search-form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.search-form button:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .search-form {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px 15px;
+  }
+
+  .search-form input,
+  .search-form select,
+  .search-form button {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .search-form input {
+    min-width: auto;
+  }
+}
+
+/* Optional: Add some animation when the form is submitted */
+.search-form.ng-submitted input:valid {
+  border-color: #48bb78;
+}
+
+.search-form.ng-submitted input:invalid {
+  border-color: #f56565;
+}
