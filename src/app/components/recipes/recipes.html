@@ -1,0 +1,56 @@
+<section class="recipes-section container">
+  <!-- Section Title & Meta -->
+  <div class="recipes-section__header">
+    <div>
+      <h2 class="recipes-section__title">{{ currentQuery() }}</h2>
+      @if (!isLoading() && results().length > 0) {
+        <p class="recipes-section__count">{{ results().length }} delicious recipes found</p>
+      }
+    </div>
+  </div>
+
+  <!-- Loading Skeletons -->
+  @if (isLoading()) {
+    <div class="recipes-grid">
+      @for (item of skeletonPlaceholders; track item) {
+        <div class="skeleton-card">
+          <div class="skeleton-card__img skeleton"></div>
+          <div class="skeleton-card__body">
+            <div class="skeleton-card__line skeleton" style="width: 80%;"></div>
+            <div class="skeleton-card__line skeleton" style="width: 50%;"></div>
+            <div class="skeleton-card__line skeleton" style="width: 30%; height: 14px; margin-top: 10px;"></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (errorMessage()) {
+    <div class="recipes-error animate-fade-in">
+      <span class="recipes-error__icon">⚠️</span>
+      <h3 class="recipes-error__title">Oops! Something went wrong</h3>
+      <p class="recipes-error__text">{{ errorMessage() }}</p>
+    </div>
+  }
+
+  <!-- Results Grid -->
+  @if (!isLoading() && !errorMessage()) {
+    @if (results().length > 0) {
+      <div class="recipes-grid">
+        @for (recipe of results(); track recipe.id) {
+          <app-recipe-card [recipe]="recipe"></app-recipe-card>
+        }
+      </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="recipes-empty animate-fade-in">
+        <div class="recipes-empty__icon">🔍</div>
+        <h3 class="recipes-empty__title">No recipes found</h3>
+        <p class="recipes-empty__desc">
+          We couldn't find any recipes matching your search. Try searching for broader terms like "chicken", "pasta", or "soup".
+        </p>
+      </div>
+    }
+  }
+</section>

@@ -1,0 +1,376 @@
+<div class="recipe-detail-page container">
+  <!-- Toast Alert for Shopping List / Action Feedback -->
+  @if (shoppingToast()) {
+    <div class="toast-notification animate-fade-in">
+      <span>{{ shoppingToast() }}</span>
+      <a routerLink="/shopping-list" class="toast-link">View List →</a>
+    </div>
+  }
+
+  <!-- Back Button & Actions Bar -->
+  <div class="detail-nav-bar">
+    <a routerLink="/" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span>Back to Recipes</span>
+    </a>
+
+    @if (recipe()) {
+      <div class="detail-nav-actions">
+        <!-- Start Cook Mode Button -->
+        @if (steps().length > 0) {
+          <button
+            type="button"
+            class="btn btn-primary cook-mode-trigger-btn"
+            (click)="openCookMode()"
+          >
+            <span>👨‍🍳 Start Cook Mode</span>
+          </button>
+        }
+
+        <!-- Save to Favorites Button -->
+        <button
+          type="button"
+          class="favorite-action-btn"
+          [class.favorite-action-btn--active]="isFavorite()"
+          (click)="toggleFavorite()"
+        >
+          <svg class="fav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span>{{ isFavorite() ? 'Saved to Favorites' : 'Save to Favorites' }}</span>
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Loading Skeleton -->
+  @if (isLoading()) {
+    <div class="detail-skeleton animate-fade-in">
+      <div class="detail-skeleton__hero skeleton"></div>
+      <div class="detail-skeleton__grid">
+        <div class="detail-skeleton__col skeleton" style="height: 380px;"></div>
+        <div class="detail-skeleton__col skeleton" style="height: 480px;"></div>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (errorMessage()) {
+    <div class="recipes-error animate-fade-in">
+      <span class="recipes-error__icon">⚠️</span>
+      <h3 class="recipes-error__title">Unable to Load Recipe</h3>
+      <p class="recipes-error__text">{{ errorMessage() }}</p>
+      <a routerLink="/" class="btn btn-primary mt-4">Browse Other Recipes</a>
+    </div>
+  }
+
+  <!-- Recipe Details Content -->
+  @if (!isLoading() && recipe(); as rec) {
+    <article class="recipe-article animate-fade-in">
+      <!-- Hero Banner -->
+      <header class="recipe-header">
+        <div class="recipe-header__media">
+          <img [src]="rec.image" [alt]="rec.title" class="recipe-header__img" />
+        </div>
+
+        <div class="recipe-header__info">
+          <!-- Badges / Metadata Chips -->
+          <div class="meta-chips">
+            @if (rec.readyInMinutes) {
+              <span class="badge badge-teal">
+                ⏱️ {{ rec.readyInMinutes }} mins
+              </span>
+            }
+            @if (rec.servings) {
+              <span class="badge badge-amber">
+                👥 {{ rec.servings }} Servings base
+              </span>
+            }
+            @if (rec.healthScore) {
+              <span class="badge badge-coral">
+                🥗 Health Score: {{ rec.healthScore }}/100
+              </span>
+            }
+            @if (rec.glutenFree) {
+              <span class="badge badge-teal">🌾 Gluten Free</span>
+            }
+            @if (rec.vegan) {
+              <span class="badge badge-teal">🌱 Vegan</span>
+            } @else if (rec.vegetarian) {
+              <span class="badge badge-teal">🥦 Vegetarian</span>
+            }
+          </div>
+
+          <h1 class="recipe-header__title">{{ rec.title }}</h1>
+
+          @if (rec.summary) {
+            <div class="recipe-summary-box">
+              <h3 class="recipe-summary-heading">Overview</h3>
+              <div class="recipe-summary-text" [innerHTML]="rec.summary"></div>
+            </div>
+          }
+        </div>
+      </header>
+
+      <!-- Main Layout: Ingredients & Instructions -->
+      <div class="recipe-content-grid">
+        <!-- Ingredients Section -->
+        <section class="recipe-panel ingredients-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <span class="panel-title-icon">🛒</span>
+              <span>Ingredients</span>
+            </h2>
+            <span class="panel-badge">
+              {{ rec.extendedIngredients?.length || 0 }} items
+            </span>
+          </div>
+
+          <!-- Servings Scaler Widget -->
+          <div class="servings-scaler-box">
+            <span class="scaler-label">Adjust Servings:</span>
+            <div class="scaler-controls">
+              <button
+                type="button"
+                class="scaler-btn"
+                (click)="decreaseServings()"
+                [disabled]="servings() <= 1"
+                aria-label="Decrease servings"
+              >
+                −
+              </button>
+              <span class="scaler-value">{{ servings() }} servings</span>
+              <button
+                type="button"
+                class="scaler-btn"
+                (click)="increaseServings()"
+                [disabled]="servings() >= 24"
+                aria-label="Increase servings"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <p class="ingredients-helper">Amounts dynamically scale to {{ servings() }} servings. Click to check off as you prep.</p>
+
+          <ul class="ingredients-list">
+            @for (item of rec.extendedIngredients; track item.id || $index; let i = $index) {
+              <li
+                class="ingredient-item"
+                [class.ingredient-item--checked]="isIngredientChecked(i)"
+                (click)="toggleIngredient(i)"
+              >
+                <div class="ingredient-checkbox">
+                  @if (isIngredientChecked(i)) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  }
+                </div>
+                <div class="ingredient-text-wrap">
+                  @if (item.amount) {
+                    <strong class="ingredient-scaled-amount">
+                      {{ getScaledAmount(item.amount) }} {{ item.unit }}
+                    </strong>
+                    <span>{{ item.nameClean || item.name }}</span>
+                  } @else {
+                    <span>{{ item.original }}</span>
+                  }
+                </div>
+              </li>
+            } @empty {
+              <li class="empty-list-notice">No specific ingredients listed.</li>
+            }
+          </ul>
+
+          <!-- Add All to Shopping List CTA -->
+          @if (rec.extendedIngredients && rec.extendedIngredients.length > 0) {
+            <button
+              type="button"
+              class="btn btn-secondary btn-add-grocery-all"
+              (click)="addAllToShoppingList()"
+            >
+              <span>🛒 Add Ingredients to Grocery List</span>
+            </button>
+          }
+        </section>
+
+        <!-- Instructions Section -->
+        <section class="recipe-panel instructions-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <span class="panel-title-icon">👩‍🍳</span>
+              <span>Instructions</span>
+            </h2>
+            @if (steps().length > 0) {
+              <button
+                type="button"
+                class="btn-cook-mode-pill"
+                (click)="openCookMode()"
+              >
+                👨‍🍳 Step-by-Step Mode
+              </button>
+            }
+          </div>
+
+          @if (steps().length > 0) {
+            <ol class="instruction-steps">
+              @for (step of steps(); track step.number) {
+                <li class="step-card">
+                  <div class="step-number">{{ step.number }}</div>
+                  <div class="step-text">{{ step.step }}</div>
+                </li>
+              }
+            </ol>
+          } @else if (rec.instructions) {
+            <div class="instructions-text-block" [innerHTML]="rec.instructions"></div>
+          } @else {
+            <div class="empty-list-notice">
+              Please refer to the original source recipe for full preparation steps.
+            </div>
+          }
+        </section>
+      </div>
+    </article>
+  }
+
+  <!-- Full-Screen Interactive Cook Mode Modal -->
+  @if (isCookModeOpen() && recipe(); as rec) {
+    <div class="cook-mode-backdrop animate-fade-in">
+      <div class="cook-mode-modal">
+        <!-- Cook Mode Header -->
+        <div class="cook-mode-header">
+          <div class="cook-mode-title-wrap">
+            <span class="cook-mode-badge">👨‍🍳 Active Cook Mode</span>
+            <h2 class="cook-mode-recipe-title">{{ rec.title }}</h2>
+          </div>
+          <button type="button" class="btn-close-cook-mode" (click)="closeCookMode()" aria-label="Exit cook mode">
+            ✕
+          </button>
+        </div>
+
+        <!-- Cook Mode Step Progress Bar -->
+        <div class="cook-progress-bar">
+          <div
+            class="cook-progress-fill"
+            [style.width.%]="((activeStepIndex() + 1) / steps().length) * 100"
+          ></div>
+        </div>
+
+        <!-- Main Step Content Box -->
+        <div class="cook-step-body">
+          <div class="cook-step-counter">
+            Step {{ activeStepIndex() + 1 }} of {{ steps().length }}
+          </div>
+
+          @if (currentStep(); as step) {
+            <div class="cook-step-card animate-fade-in">
+              <p class="cook-step-instruction">{{ step.step }}</p>
+            </div>
+          }
+
+          <!-- Integrated Kitchen Timer Widget -->
+          <div class="kitchen-timer-widget">
+            <div class="timer-display-wrap">
+              <span class="timer-icon">⏱️</span>
+              <span class="timer-time" [class.timer-time--running]="timerRunning()" [class.timer-time--done]="timerAlert()">
+                {{ formattedTimer() }}
+              </span>
+              @if (timerAlert()) {
+                <span class="timer-ding-badge animate-fade-in">🔔 Time's Up!</span>
+              }
+            </div>
+
+            <!-- Timer Controls -->
+            <div class="timer-controls">
+              @if (!timerRunning()) {
+                <button
+                  type="button"
+                  class="btn btn-primary timer-btn"
+                  [disabled]="timerSeconds() <= 0"
+                  (click)="startTimer()"
+                >
+                  Start Timer
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="btn btn-secondary timer-btn"
+                  (click)="pauseTimer()"
+                >
+                  Pause
+                </button>
+              }
+
+              <button
+                type="button"
+                class="btn btn-secondary timer-btn"
+                [disabled]="timerSeconds() === 0"
+                (click)="resetTimer()"
+              >
+                Reset
+              </button>
+            </div>
+
+            <!-- Quick Timer Presets -->
+            <div class="timer-presets">
+              <span class="timer-presets-label">Quick timers:</span>
+              <button type="button" class="timer-preset-btn" (click)="setTimerMinutes(1)">1 min</button>
+              <button type="button" class="timer-preset-btn" (click)="setTimerMinutes(3)">3 mins</button>
+              <button type="button" class="timer-preset-btn" (click)="setTimerMinutes(5)">5 mins</button>
+              <button type="button" class="timer-preset-btn" (click)="setTimerMinutes(10)">10 mins</button>
+              <button type="button" class="timer-preset-btn" (click)="setTimerMinutes(15)">15 mins</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cook Mode Navigation Footer -->
+        <div class="cook-mode-footer">
+          <button
+            type="button"
+            class="btn btn-secondary cook-nav-btn"
+            [disabled]="activeStepIndex() === 0"
+            (click)="prevCookStep()"
+          >
+            ← Previous Step
+          </button>
+
+          <div class="cook-step-dots">
+            @for (s of steps(); track s.number; let i = $index) {
+              <button
+                type="button"
+                class="step-dot"
+                [class.step-dot--active]="i === activeStepIndex()"
+                [class.step-dot--passed]="i < activeStepIndex()"
+                (click)="setCookStep(i)"
+                [attr.aria-label]="'Go to step ' + (i + 1)"
+              ></button>
+            }
+          </div>
+
+          @if (activeStepIndex() < steps().length - 1) {
+            <button
+              type="button"
+              class="btn btn-primary cook-nav-btn"
+              (click)="nextCookStep()"
+            >
+              Next Step →
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-primary cook-nav-btn cook-nav-btn--finish"
+              (click)="closeCookMode()"
+            >
+              🎉 Finish Cooking
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,105 @@
+<header class="header">
+  <div class="header__container container">
+    <a routerLink="/" class="header__logo" (click)="closeMobileMenu()">
+      <span class="header__logo-icon">🍳</span>
+      <span class="header__logo-text">Recipe<span class="header__logo-accent">Finder</span></span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="header__nav">
+      <a
+        routerLink="/"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="header__link--active"
+        class="header__link"
+      >
+        <span>Discover</span>
+      </a>
+      <a
+        routerLink="/favorites"
+        routerLinkActive="header__link--active"
+        class="header__link header__link--favorites"
+      >
+        <span>Favorites</span>
+        @if (favoritesService.favorites().length > 0) {
+          <span class="header__badge animate-fade-in">{{ favoritesService.favorites().length }}</span>
+        }
+      </a>
+      <a
+        routerLink="/shopping-list"
+        routerLinkActive="header__link--active"
+        class="header__link"
+      >
+        <span>Grocery List</span>
+        @if (shoppingListService.pendingCount() > 0) {
+          <span class="header__badge header__badge--grocery animate-fade-in">{{ shoppingListService.pendingCount() }}</span>
+        }
+      </a>
+      <a
+        routerLink="/about"
+        routerLinkActive="header__link--active"
+        class="header__link"
+      >
+        <span>About</span>
+      </a>
+    </nav>
+
+    <!-- Mobile Hamburger Button -->
+    <button
+      type="button"
+      class="header__mobile-toggle"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="isMobileMenuOpen()"
+      aria-label="Toggle navigation menu"
+    >
+      <span class="header__hamburger-bar"></span>
+      <span class="header__hamburger-bar"></span>
+      <span class="header__hamburger-bar"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Dropdown Navigation -->
+  @if (isMobileMenuOpen()) {
+    <div class="header__mobile-menu animate-fade-in">
+      <a
+        routerLink="/"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="header__mobile-link--active"
+        class="header__mobile-link"
+        (click)="closeMobileMenu()"
+      >
+        Discover
+      </a>
+      <a
+        routerLink="/favorites"
+        routerLinkActive="header__mobile-link--active"
+        class="header__mobile-link"
+        (click)="closeMobileMenu()"
+      >
+        <span>Favorites</span>
+        @if (favoritesService.favorites().length > 0) {
+          <span class="header__badge">{{ favoritesService.favorites().length }}</span>
+        }
+      </a>
+      <a
+        routerLink="/shopping-list"
+        routerLinkActive="header__mobile-link--active"
+        class="header__mobile-link"
+        (click)="closeMobileMenu()"
+      >
+        <span>Grocery List</span>
+        @if (shoppingListService.pendingCount() > 0) {
+          <span class="header__badge header__badge--grocery">{{ shoppingListService.pendingCount() }}</span>
+        }
+      </a>
+      <a
+        routerLink="/about"
+        routerLinkActive="header__mobile-link--active"
+        class="header__mobile-link"
+        (click)="closeMobileMenu()"
+      >
+        About
+      </a>
+    </div>
+  }
+</header>

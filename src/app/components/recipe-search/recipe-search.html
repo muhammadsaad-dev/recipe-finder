@@ -1,0 +1,367 @@
+<section class="hero-section">
+  <div class="hero-content">
+    <div class="hero-badge animate-fade-in">
+      <span>✨ Over 300,000+ curated recipes</span>
+    </div>
+    <h1 class="hero-title">
+      Discover, Cook & Savor <br />
+      <span class="hero-title--gradient">Delicious Meals</span>
+    </h1>
+    <p class="hero-subtitle">
+      Search recipes by meal name, or match recipes using ingredients already inside your kitchen fridge!
+    </p>
+
+    <!-- Search Mode Switcher Tabs -->
+    <div class="search-mode-tabs">
+      <button
+        type="button"
+        class="mode-tab"
+        [class.mode-tab--active]="searchMode() === 'keyword'"
+        (click)="setMode('keyword')"
+      >
+        <span>🔍 Search by Recipe</span>
+      </button>
+      <button
+        type="button"
+        class="mode-tab"
+        [class.mode-tab--active]="searchMode() === 'ingredients'"
+        (click)="setMode('ingredients')"
+      >
+        <span>🥑 What's in My Fridge?</span>
+      </button>
+    </div>
+
+    <!-- Mode 1: Keyword Search Bar -->
+    @if (searchMode() === 'keyword') {
+      <form class="search-bar animate-fade-in" (ngSubmit)="onSearch()">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+
+          <input
+            type="text"
+            class="search-input"
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)"
+            name="query"
+            placeholder="Search by recipe, cuisine, or dish (e.g. Pasta, Salmon, Ramen)..."
+            autocomplete="off"
+          />
+
+          @if (query()) {
+            <button type="button" class="clear-btn" (click)="clearQuery()" aria-label="Clear search input">
+              ✕
+            </button>
+          }
+        </div>
+
+        <div class="search-controls">
+          <!-- Filter Drawer Trigger Button -->
+          <button
+            type="button"
+            class="filter-toggle-btn"
+            [class.filter-toggle-btn--active]="hasActiveFilters()"
+            (click)="toggleFilterDrawer()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span>Filters</span>
+            @if (activeFilterCount() > 0) {
+              <span class="filter-count-badge">{{ activeFilterCount() }}</span>
+            }
+          </button>
+
+          <div class="limit-selector-wrapper">
+            <label class="limit-label" for="recipe-limit">Show:</label>
+            <select
+              id="recipe-limit"
+              class="limit-select"
+              [ngModel]="limit()"
+              (ngModelChange)="limit.set($event)"
+              name="limit"
+            >
+              <option value="12">12</option>
+              <option value="24">24</option>
+              <option value="36">36</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary search-submit-btn">
+            <span>Search</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+      </form>
+
+      <!-- Popular Tags -->
+      <div class="quick-tags-container animate-fade-in">
+        <span class="quick-tags-label">Popular searches:</span>
+        <div class="quick-tags-list">
+          @for (tag of popularTags; track tag.label) {
+            <button
+              type="button"
+              class="tag-chip"
+              [class.tag-chip--active]="query().toLowerCase() === tag.label.toLowerCase()"
+              (click)="selectTag(tag.label)"
+            >
+              <span>{{ tag.emoji }}</span>
+              <span>{{ tag.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Mode 2: Fridge / Pantry Matcher -->
+    @if (searchMode() === 'ingredients') {
+      <div class="pantry-card animate-fade-in">
+        <div class="pantry-card__header">
+          <div class="pantry-card__icon">🥑</div>
+          <div>
+            <h3 class="pantry-card__title">What's in your kitchen?</h3>
+            <p class="pantry-card__desc">Add ingredients you have on hand and we'll find matching recipes for you.</p>
+          </div>
+        </div>
+
+        <!-- Ingredient Input Form -->
+        <form class="pantry-input-bar" (ngSubmit)="addIngredient()">
+          <input
+            type="text"
+            class="pantry-input"
+            [ngModel]="ingredientInput()"
+            (ngModelChange)="ingredientInput.set($event)"
+            name="ingredientInput"
+            placeholder="Type ingredient (e.g. eggs, tomatoes, chicken, garlic)..."
+          />
+          <button type="submit" class="btn btn-primary btn-add-ingredient">
+            <span>+ Add</span>
+          </button>
+        </form>
+
+        <!-- Quick Pantry Staples -->
+        <div class="pantry-staples-row">
+          <span class="pantry-staples-label">Quick add staples:</span>
+          <div class="pantry-staples-list">
+            @for (staple of pantryStaples; track staple) {
+              <button
+                type="button"
+                class="staple-btn"
+                [disabled]="ingredientsList().includes(staple)"
+                (click)="addIngredient(staple)"
+              >
+                + {{ staple }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Added Ingredients Tags List -->
+        @if (ingredientsList().length > 0) {
+          <div class="added-ingredients-box animate-fade-in">
+            <div class="added-ingredients-header">
+              <span class="added-ingredients-count">{{ ingredientsList().length }} ingredients selected</span>
+              <button type="button" class="btn-clear-ingredients" (click)="clearIngredients()">
+                Clear all
+              </button>
+            </div>
+            <div class="ingredient-chips-list">
+              @for (ing of ingredientsList(); track ing) {
+                <span class="ingredient-chip animate-fade-in">
+                  <span>{{ ing }}</span>
+                  <button type="button" class="chip-remove-btn" (click)="removeIngredient(ing)">✕</button>
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Pantry Search Action Row -->
+        <div class="pantry-action-row">
+          <button
+            type="button"
+            class="filter-toggle-btn"
+            [class.filter-toggle-btn--active]="hasActiveFilters()"
+            (click)="toggleFilterDrawer()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span>Filters</span>
+            @if (activeFilterCount() > 0) {
+              <span class="filter-count-badge">{{ activeFilterCount() }}</span>
+            }
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-primary btn-pantry-find"
+            [disabled]="ingredientsList().length === 0"
+            (click)="onSearch()"
+          >
+            <span>Find Recipes with My Ingredients</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Expandable Advanced Filter Drawer -->
+    @if (isFilterDrawerOpen()) {
+      <div class="filter-drawer animate-fade-in">
+        <div class="filter-drawer__header">
+          <h3 class="filter-drawer__title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span>Advanced Filters</span>
+          </h3>
+          <button type="button" class="btn-close-drawer" (click)="toggleFilterDrawer()">✕</button>
+        </div>
+
+        <div class="filter-sections-grid">
+          <!-- Cuisines -->
+          <div class="filter-group">
+            <h4 class="filter-group__title">🌍 Cuisine</h4>
+            <div class="filter-chips-wrap">
+              @for (c of cuisines; track c) {
+                <button
+                  type="button"
+                  class="filter-pill"
+                  [class.filter-pill--active]="selectedCuisine() === c"
+                  (click)="setCuisine(c)"
+                >
+                  {{ c }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Dietary Restrictions -->
+          <div class="filter-group">
+            <h4 class="filter-group__title">🌱 Dietary Preference</h4>
+            <div class="filter-chips-wrap">
+              @for (d of diets; track d) {
+                <button
+                  type="button"
+                  class="filter-pill"
+                  [class.filter-pill--active]="selectedDiet() === d"
+                  (click)="setDiet(d)"
+                >
+                  {{ d }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Meal Types -->
+          <div class="filter-group">
+            <h4 class="filter-group__title">🍽️ Meal Type</h4>
+            <div class="filter-chips-wrap">
+              @for (m of mealTypes; track m.value) {
+                <button
+                  type="button"
+                  class="filter-pill"
+                  [class.filter-pill--active]="selectedMealType() === m.value"
+                  (click)="setMealType(m.value)"
+                >
+                  {{ m.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Max Ready Time & Sorting -->
+          <div class="filter-group">
+            <h4 class="filter-group__title">⏱️ Max Cooking Time</h4>
+            <div class="filter-chips-wrap">
+              @for (t of timePresets; track t.label) {
+                <button
+                  type="button"
+                  class="filter-pill"
+                  [class.filter-pill--active]="selectedMaxTime() === t.value"
+                  (click)="setMaxTime(t.value)"
+                >
+                  {{ t.label }}
+                </button>
+              }
+            </div>
+
+            <h4 class="filter-group__title" style="margin-top: 1.25rem;">📊 Sort By</h4>
+            <div class="filter-chips-wrap">
+              @for (s of sortOptions; track s.value) {
+                <button
+                  type="button"
+                  class="filter-pill"
+                  [class.filter-pill--active]="selectedSort() === s.value"
+                  (click)="setSort(s.value)"
+                >
+                  {{ s.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-drawer__footer">
+          <button type="button" class="btn btn-secondary btn-reset-filters" (click)="resetAllFilters()">
+            Reset All
+          </button>
+          <button type="button" class="btn btn-primary btn-apply-filters" (click)="onSearch(); toggleFilterDrawer()">
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Active Filters Summary Bar -->
+    @if (hasActiveFilters()) {
+      <div class="active-filters-bar animate-fade-in">
+        <span class="active-filters-label">Active Filters:</span>
+
+        @if (selectedCuisine()) {
+          <span class="active-tag">
+            <span>Cuisine: {{ selectedCuisine() }}</span>
+            <button type="button" (click)="setCuisine('')">✕</button>
+          </span>
+        }
+        @if (selectedDiet()) {
+          <span class="active-tag">
+            <span>Diet: {{ selectedDiet() }}</span>
+            <button type="button" (click)="setDiet('')">✕</button>
+          </span>
+        }
+        @if (selectedMealType()) {
+          <span class="active-tag">
+            <span>Meal: {{ selectedMealType() }}</span>
+            <button type="button" (click)="setMealType('')">✕</button>
+          </span>
+        }
+        @if (selectedMaxTime() !== null) {
+          <span class="active-tag">
+            <span>Time: &le; {{ selectedMaxTime() }}m</span>
+            <button type="button" (click)="setMaxTime(null)">✕</button>
+          </span>
+        }
+        @if (selectedSort()) {
+          <span class="active-tag">
+            <span>Sort: {{ selectedSort() }}</span>
+            <button type="button" (click)="setSort('')">✕</button>
+          </span>
+        }
+
+        <button type="button" class="clear-all-link" (click)="resetAllFilters()">
+          Clear All
+        </button>
+      </div>
+    }
+  </div>
+</section>

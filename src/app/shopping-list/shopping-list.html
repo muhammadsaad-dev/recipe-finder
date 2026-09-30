@@ -1,0 +1,166 @@
+<div class="shopping-page container animate-fade-in">
+  <!-- Page Header -->
+  <div class="shopping-header">
+    <div>
+      <h1 class="shopping-title">Smart Grocery & Shopping List</h1>
+      <p class="shopping-subtitle">
+        {{ totalCount() }} {{ totalCount() === 1 ? 'item' : 'items' }} ({{ completedCount() }} checked off)
+      </p>
+    </div>
+
+    <div class="shopping-header__actions">
+      @if (totalCount() > 0) {
+        <button
+          type="button"
+          class="btn btn-secondary action-btn"
+          (click)="copyToClipboard()"
+        >
+          <span>{{ copiedNotification() ? '✅ Copied to Clipboard!' : '📋 Copy List' }}</span>
+        </button>
+
+        @if (completedCount() > 0) {
+          <button
+            type="button"
+            class="btn btn-secondary action-btn"
+            (click)="clearCompleted()"
+          >
+            Clear Checked
+          </button>
+        }
+
+        <button
+          type="button"
+          class="btn btn-secondary action-btn action-btn--danger"
+          (click)="clearAll()"
+        >
+          Clear All
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Progress Bar (if items exist) -->
+  @if (totalCount() > 0) {
+    <div class="grocery-progress-container">
+      <div class="grocery-progress-bar">
+        <div
+          class="grocery-progress-fill"
+          [style.width.%]="(completedCount() / totalCount()) * 100"
+        ></div>
+      </div>
+    </div>
+  }
+
+  <!-- Add Item Form -->
+  <form class="add-item-bar" (ngSubmit)="addCustomItem()">
+    <input
+      type="text"
+      class="add-item-input"
+      [ngModel]="customItemName()"
+      (ngModelChange)="customItemName.set($event)"
+      name="customItemName"
+      placeholder="Add a grocery item (e.g. Olive Oil, Sourdough Bread, Almond Milk)..."
+    />
+    <button type="submit" class="btn btn-primary btn-add-item" [disabled]="!customItemName().trim()">
+      <span>+ Add to List</span>
+    </button>
+  </form>
+
+  <!-- Filter Mode Tabs -->
+  @if (totalCount() > 0) {
+    <div class="filter-tabs-row">
+      <div class="filter-tabs">
+        <button
+          type="button"
+          class="tab-btn"
+          [class.tab-btn--active]="filterMode() === 'all'"
+          (click)="filterMode.set('all')"
+        >
+          All ({{ totalCount() }})
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.tab-btn--active]="filterMode() === 'pending'"
+          (click)="filterMode.set('pending')"
+        >
+          To Buy ({{ shoppingService.pendingCount() }})
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.tab-btn--active]="filterMode() === 'completed'"
+          (click)="filterMode.set('completed')"
+        >
+          Checked ({{ completedCount() }})
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Grocery Items List -->
+  @if (filteredItems().length > 0) {
+    <div class="grocery-list">
+      @for (item of filteredItems(); track item.id) {
+        <div
+          class="grocery-item animate-fade-in"
+          [class.grocery-item--completed]="item.completed"
+        >
+          <button
+            type="button"
+            class="grocery-checkbox"
+            (click)="toggleItem(item.id)"
+            [attr.aria-label]="item.completed ? 'Mark uncompleted' : 'Mark completed'"
+          >
+            @if (item.completed) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            }
+          </button>
+
+          <div class="grocery-item__details" (click)="toggleItem(item.id)">
+            <span class="grocery-item__name">
+              {{ item.originalText || item.name }}
+            </span>
+            @if (item.recipeTitle) {
+              <span class="grocery-item__source">
+                From recipe: <em>{{ item.recipeTitle }}</em>
+              </span>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="grocery-delete-btn"
+            (click)="removeItem(item.id)"
+            title="Delete item"
+            aria-label="Delete item"
+          >
+            ✕
+          </button>
+        </div>
+      }
+    </div>
+  } @else if (totalCount() > 0) {
+    <div class="empty-filter-state animate-fade-in">
+      <p>No items in this filter view.</p>
+    </div>
+  } @else {
+    <!-- Empty Shopping List State -->
+    <div class="shopping-empty animate-fade-in">
+      <div class="shopping-empty__icon">🛒</div>
+      <h2 class="shopping-empty__title">Your grocery list is empty</h2>
+      <p class="shopping-empty__desc">
+        Add custom items above or open any recipe and tap <strong>"Add Ingredients to Grocery List"</strong> to build your shopping list in one click.
+      </p>
+      <a routerLink="/" class="btn btn-primary mt-4">
+        <span>Browse Recipes</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+  }
+</div>

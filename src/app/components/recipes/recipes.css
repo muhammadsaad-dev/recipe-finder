@@ -1,0 +1,123 @@
+.recipes-section {
+  padding: 1rem 1.5rem 4rem;
+}
+
+.recipes-section__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--border-subtle);
+  padding-bottom: 0.85rem;
+}
+
+.recipes-section__title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.recipes-section__count {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+/* ===== Responsive Grid ===== */
+.recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+/* ===== Skeleton Card ===== */
+.skeleton-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-card__img {
+  width: 100%;
+  padding-top: 66.66%;
+}
+
+.skeleton-card__body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.skeleton-card__line {
+  height: 18px;
+  border-radius: var(--radius-sm);
+}
+
+/* ===== Error State ===== */
+.recipes-error {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid #fed7aa;
+  max-width: 540px;
+  margin: 2rem auto;
+}
+
+.recipes-error__icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  display: inline-block;
+}
+
+.recipes-error__title {
+  font-size: 1.3rem;
+  color: #9a3412;
+  margin-bottom: 0.5rem;
+}
+
+.recipes-error__text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* ===== Empty State ===== */
+.recipes-empty {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--border-subtle);
+  max-width: 580px;
+  margin: 2rem auto;
+}
+
+.recipes-empty__icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.recipes-empty__title {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.recipes-empty__desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .recipes-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}

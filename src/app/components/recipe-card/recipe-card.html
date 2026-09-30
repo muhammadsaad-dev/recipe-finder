@@ -1,0 +1,94 @@
+<article class="recipe-card animate-fade-in">
+  <a class="recipe-card__media" [routerLink]="['/recipe', recipe().id]">
+    @if (!imageLoaded()) {
+      <div class="recipe-card__skeleton skeleton"></div>
+    }
+
+    @if (!imageError() && recipe().image) {
+      <img
+        [src]="recipe().image"
+        [alt]="recipe().title"
+        class="recipe-card__img"
+        [class.recipe-card__img--loaded]="imageLoaded()"
+        (load)="onImageLoad()"
+        (error)="onImageError()"
+        loading="lazy"
+      />
+    } @else {
+      <div class="recipe-card__placeholder">
+        <span class="recipe-card__placeholder-icon">🍲</span>
+        <span class="recipe-card__placeholder-text">Recipe Preview</span>
+      </div>
+    }
+
+    <div class="recipe-card__overlay"></div>
+
+    <!-- Floating Time / Diet Badge -->
+    <div class="recipe-card__floating-badges">
+      @if (recipe().readyInMinutes) {
+        <span class="card-chip card-chip--time">
+          ⏱️ {{ recipe().readyInMinutes }}m
+        </span>
+      }
+      @if (recipe().vegan) {
+        <span class="card-chip card-chip--diet">Vegan</span>
+      } @else if (recipe().vegetarian) {
+        <span class="card-chip card-chip--diet">Veg</span>
+      } @else if (recipe().glutenFree) {
+        <span class="card-chip card-chip--diet">GF</span>
+      }
+    </div>
+
+    <!-- Floating Favorite Heart Button -->
+    <button
+      type="button"
+      class="recipe-card__fav-btn"
+      [class.recipe-card__fav-btn--active]="isFavorite()"
+      (click)="toggleFavorite($event)"
+      [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Save to favorites'"
+      [title]="isFavorite() ? 'Remove from favorites' : 'Save to favorites'"
+    >
+      <svg
+        class="fav-icon"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+    </button>
+  </a>
+
+  <div class="recipe-card__body">
+    <div class="recipe-card__main-info">
+      <a [routerLink]="['/recipe', recipe().id]" class="recipe-card__title-link">
+        <h3 class="recipe-card__title" [title]="recipe().title">{{ recipe().title }}</h3>
+      </a>
+
+      @if (recipe().servings || recipe().healthScore) {
+        <div class="recipe-card__meta-row">
+          @if (recipe().servings) {
+            <span class="recipe-card__meta-item">👥 {{ recipe().servings }} servings</span>
+          }
+          @if (recipe().servings && recipe().healthScore) {
+            <span class="recipe-card__meta-dot">•</span>
+          }
+          @if (recipe().healthScore) {
+            <span class="recipe-card__meta-item">🥗 {{ recipe().healthScore }}% health score</span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="recipe-card__footer">
+      <a [routerLink]="['/recipe', recipe().id]" class="recipe-card__cta">
+        <span>View Recipe</span>
+        <svg class="recipe-card__cta-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+  </div>
+</article>

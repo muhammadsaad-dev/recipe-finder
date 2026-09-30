@@ -1,0 +1,39 @@
+<div class="favorites-page container animate-fade-in">
+  <div class="favorites-header">
+    <div>
+      <h1 class="favorites-title">Your Favorite Recipes</h1>
+      <p class="favorites-subtitle">
+        {{ favoritesService.favorites().length }} {{ favoritesService.favorites().length === 1 ? 'recipe' : 'recipes' }} saved for easy cooking
+      </p>
+    </div>
+
+    @if (favoritesService.favorites().length > 0) {
+      <button type="button" class="btn btn-secondary clear-btn" (click)="clearFavorites()">
+        <span>Clear All</span>
+      </button>
+    }
+  </div>
+
+  @if (favoritesService.favorites().length > 0) {
+    <div class="favorites-grid">
+      @for (recipe of favoritesService.favorites(); track recipe.id) {
+        <app-recipe-card [recipe]="recipe"></app-recipe-card>
+      }
+    </div>
+  } @else {
+    <div class="favorites-empty animate-fade-in">
+      <div class="favorites-empty__icon">❤️</div>
+      <h2 class="favorites-empty__title">No favorite recipes yet</h2>
+      <p class="favorites-empty__desc">
+        Explore thousands of delicious recipes on our Discover page and tap the heart icon on any recipe to save it here for quick access.
+      </p>
+      <a routerLink="/" class="btn btn-primary mt-4">
+        <span>Explore Recipes</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+  }
+</div>
