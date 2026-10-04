@@ -16,9 +16,12 @@ export class RecipeService {
 
   searchRecipes(params: UserInput): Observable<RecipeSearchResponse> {
     let httpParams = new HttpParams()
-      .set('apiKey', this.apiKey)
       .set('addRecipeInformation', 'true')
       .set('number', params.limit || '12');
+
+    if (this.apiKey) {
+      httpParams = httpParams.set('apiKey', this.apiKey);
+    }
 
     if (params.searchMode === 'ingredients' && params.ingredients && params.ingredients.length > 0) {
       httpParams = httpParams.set('includeIngredients', params.ingredients.join(','));
@@ -45,7 +48,14 @@ export class RecipeService {
       httpParams = httpParams.set('sort', params.sortBy);
     }
 
-    const url = `${this.baseUrl}/recipes/complexSearch`;
+    let url: string;
+    if (this.baseUrl.startsWith('/api')) {
+      httpParams = httpParams.set('endpoint', 'recipes/complexSearch');
+      url = this.baseUrl;
+    } else {
+      url = `${this.baseUrl}/recipes/complexSearch`;
+    }
+
     return this.http.get<RecipeSearchResponse>(url, { params: httpParams });
   }
 
@@ -54,7 +64,20 @@ export class RecipeService {
   }
 
   getRecipeById(id: string | number): Observable<Recipe> {
-    const url = `${this.baseUrl}/recipes/${id}/information?apiKey=${this.apiKey}`;
-    return this.http.get<Recipe>(url);
+    let httpParams = new HttpParams();
+    let url: string;
+
+    if (this.apiKey) {
+      httpParams = httpParams.set('apiKey', this.apiKey);
+    }
+
+    if (this.baseUrl.startsWith('/api')) {
+      httpParams = httpParams.set('endpoint', `recipes/${id}/information`);
+      url = this.baseUrl;
+    } else {
+      url = `${this.baseUrl}/recipes/${id}/information`;
+    }
+
+    return this.http.get<Recipe>(url, { params: httpParams });
   }
 }
